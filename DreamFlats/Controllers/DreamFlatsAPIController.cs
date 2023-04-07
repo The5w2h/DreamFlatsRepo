@@ -100,11 +100,11 @@ namespace DreamFlats.Controllers
         }
 
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}", Name = "DeleteFlat")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult DeleteFlat(int id)
+        public IActionResult DeleteFlat(int id) // In IActionResult there is not need to define return type i.e. <x> is not required as in ActionResult<x>
         {
             if (id == 0)
             {
@@ -119,6 +119,27 @@ namespace DreamFlats.Controllers
             }
 
             FlatStore.flatList.Remove(flat);
+            return NoContent();
+        }
+
+
+        [HttpPut("{id:int}", Name = "UpdateFlat")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdateFlat(int id, [FromBody]FlatDTO flatDTO) // In IActionResult there is not need to define return type i.e. <x> is not required as in ActionResult<x>
+        {
+            if (flatDTO == null || id != flatDTO.Id)
+            {
+                return BadRequest();
+            }
+
+            var flat = FlatStore.flatList.FirstOrDefault(u => u.Id == id);
+
+            flat.Name = flatDTO.Name;
+            flat.Occupancy = flatDTO.Occupancy;
+            flat.SquareFeet = flatDTO.SquareFeet;
+
             return NoContent();
         }
     }
