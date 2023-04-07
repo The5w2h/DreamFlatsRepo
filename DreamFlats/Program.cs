@@ -1,6 +1,8 @@
 ﻿/* Logger is already registered inside CreateBuilder*/
+using DreamFlats.Data;
 using DreamFlats.Logging;
-using Serilog;
+using Microsoft.EntityFrameworkCore;
+//using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 //    .WriteTo.File("log/FlatLog.txt", rollingInterval: RollingInterval.Day).CreateLogger();
 
 //builder.Host.UseSerilog();
+
+// To use EF Core, below process is followed.
+builder.Services.AddDbContext<ApplicationDbContext>(option =>
+{
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 //builder.Services.AddControllers().AddNewtonsoftJson(); //Add AddNewtonsoftJson for working with Patch
 builder.Services.AddControllers(options =>
