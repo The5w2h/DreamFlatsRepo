@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1705.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DreamFlats", "DreamFlats\DreamFlats.csproj", "{FFF8E6D5-320D-44EA-922C-D9B9141313E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFF8E6D5-320D-44EA-922C-D9B9141313E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFF8E6D5-320D-44EA-922C-D9B9141313E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFF8E6D5-320D-44EA-922C-D9B9141313E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFF8E6D5-320D-44EA-922C-D9B9141313E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2312F270-27EB-4B4E-8A21-F340645645AE}
+	EndGlobalSection
+EndGlobal
