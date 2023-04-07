@@ -1,7 +1,9 @@
 ﻿using System;
 using DreamFlats.Data;
+using DreamFlats.Logging;
 using DreamFlats.Models;
 using DreamFlats.Models.DTO;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DreamFlats.Controllers
@@ -15,10 +17,22 @@ namespace DreamFlats.Controllers
     [ApiController] //notifies that the below class is an API Controller.
     public class DreamFlatsAPIController : ControllerBase // ControllerBase: contains common methods for data and users.
     {
-        public DreamFlatsAPIController()
-        {
-        }
+        // For using SeriLog use below way
+        //private readonly ILogger<DreamFlatsAPIController> _logger; // For logging.
 
+        //public DreamFlatsAPIController(ILogger<DreamFlatsAPIController> logger) // DI is used for logging
+        //{
+        //    _logger = logger;
+        //}
+
+        // For custom logging, use below
+
+        private readonly ILogging _logger;
+
+        public DreamFlatsAPIController(ILogging logger)
+        {
+            _logger = logger;
+        }
         /*
         Below method is called an "EndPoint". "HTTPVerb" is required for the "EndPoint" or "Action" method.
         HttpVerb is defined NOT at controller level, but at ACTION method level i.e., EndPoint level
@@ -29,6 +43,7 @@ namespace DreamFlats.Controllers
         {
             try
             {
+                _logger.Log("Getting all flats", "success");
                 return Ok(FlatStore.flatList);
             }
             catch (Exception ex)
@@ -54,6 +69,7 @@ namespace DreamFlats.Controllers
             {
                 if (id == 0)
                 {
+                    _logger.Log("Get Villa Error with ID" + id, "error");
                     return BadRequest();
                 }
 
@@ -125,7 +141,6 @@ namespace DreamFlats.Controllers
 
         [HttpPut("{id:int}", Name = "UpdateFlat")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UpdateFlat(int id, [FromBody]FlatDTO flatDTO) // In IActionResult there is not need to define return type i.e. <x> is not required as in ActionResult<x>
         {
@@ -139,6 +154,33 @@ namespace DreamFlats.Controllers
             flat.Name = flatDTO.Name;
             flat.Occupancy = flatDTO.Occupancy;
             flat.SquareFeet = flatDTO.SquareFeet;
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}", Name = "UpdatePartialFlat")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdatePartialFlat(int id, JsonPatchDocument<FlatDTO> patchDTO) // In IActionResult there is not need to define return type i.e. <x> is not required as in ActionResult<x>
+        {
+            if (patchDTO == null || id == 0)
+            {
+                return BadRequest();
+            }
+
+            var flat = FlatStore.flatList.FirstOrDefault(u => u.Id == id);
+
+            if (flat == null)
+            {
+                return BadRequest();
+            }
+
+            patchDTO.ApplyTo(flat, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             return NoContent();
         }
