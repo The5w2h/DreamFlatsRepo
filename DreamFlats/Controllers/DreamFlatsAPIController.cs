@@ -5,6 +5,7 @@ using DreamFlats.Models;
 using DreamFlats.Models.DTO;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DreamFlats.Controllers
 {
@@ -202,7 +203,7 @@ namespace DreamFlats.Controllers
                 return BadRequest();
             }
 
-            var flat = _db.Flats.FirstOrDefault(u => u.Id == id);
+            var flat = _db.Flats.AsNoTracking().FirstOrDefault(u => u.Id == id);
 
             if (flat == null)
             {
