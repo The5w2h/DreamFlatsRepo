@@ -28,10 +28,16 @@ namespace DreamFlats.Controllers
         // For custom logging, use below
 
         private readonly ILogging _logger;
+        private readonly ApplicationDbContext _db;
 
         public DreamFlatsAPIController(ILogging logger)
         {
             _logger = logger;
+        }
+
+        public DreamFlatsAPIController(ApplicationDbContext db)
+        {
+            _db = db;
         }
         /*
         Below method is called an "EndPoint". "HTTPVerb" is required for the "EndPoint" or "Action" method.
@@ -44,7 +50,7 @@ namespace DreamFlats.Controllers
             try
             {
                 _logger.Log("Getting all flats", "success");
-                return Ok(FlatStore.flatList);
+                return Ok(_db.Flats.ToList());
             }
             catch (Exception ex)
             {
@@ -73,7 +79,7 @@ namespace DreamFlats.Controllers
                     return BadRequest();
                 }
 
-                var flat = FlatStore.flatList.FirstOrDefault(u => u.Id == id);
+                var flat = _db.Flats.FirstOrDefault(u => u.Id == id);
                 if (flat == null)
                 {
                     return NotFound();
@@ -94,7 +100,7 @@ namespace DreamFlats.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<FlatDTO> CreateFlat([FromBody] FlatDTO flatDTO)
         {
-            if (FlatStore.flatList.FirstOrDefault(u => u.Name.ToLower() == flatDTO.Name.ToLower()) != null)
+            if (_db.Flats.FirstOrDefault(u => u.Name.ToLower() == flatDTO.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("", "Flat already exists");
                 return BadRequest(ModelState);
@@ -109,9 +115,25 @@ namespace DreamFlats.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            flatDTO.Id = FlatStore.flatList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
-            FlatStore.flatList.Add(flatDTO);
+            // Only a model or an object can be added to _db.Table.Add(x) method; x= Model
+            // model is created like below
+            Flat model = new()
+            {
+                Id = flatDTO.Id,
+                Name = flatDTO.Name,
+                Details = flatDTO.Details,
+                SquareFeet = flatDTO.SquareFeet,
+                Amenity = flatDTO.Amenity,
+                ImageUrl = flatDTO.ImageUrl,
+                Occupancy = flatDTO.Occupancy,
+                Rate = flatDTO.Rate
+            };
 
+            //flatDTO.Id = _db.Flats.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
+            _db.Flats.Add(model);
+
+            /* Save changes is required to persist the changes*/
+            _db.SaveChanges();
             return CreatedAtRoute("GetFlat", new { id = flatDTO.Id }, flatDTO); //Used to route to a different Action Verb
         }
 
@@ -127,14 +149,17 @@ namespace DreamFlats.Controllers
                 return BadRequest();
             }
 
-            var flat = FlatStore.flatList.FirstOrDefault(u => u.Id == id);
+            var flat = _db.Flats.FirstOrDefault(u => u.Id == id);
 
             if (flat == null)
             {
                 return NotFound();
             }
 
-            FlatStore.flatList.Remove(flat);
+            _db.Flats.Remove(flat);
+
+            /*SaveChanges() is required to persist the changes*/
+            _db.SaveChanges();
             return NoContent();
         }
 
@@ -149,12 +174,21 @@ namespace DreamFlats.Controllers
                 return BadRequest();
             }
 
-            var flat = FlatStore.flatList.FirstOrDefault(u => u.Id == id);
+            //var flat = _db.Flats.FirstOrDefault(u => u.Id == id);
 
-            flat.Name = flatDTO.Name;
-            flat.Occupancy = flatDTO.Occupancy;
-            flat.SquareFeet = flatDTO.SquareFeet;
-
+            Flat model = new()
+            {
+                Id = flatDTO.Id,
+                Name = flatDTO.Name,
+                Details = flatDTO.Details,
+                SquareFeet = flatDTO.SquareFeet,
+                Amenity = flatDTO.Amenity,
+                ImageUrl = flatDTO.ImageUrl,
+                Occupancy = flatDTO.Occupancy,
+                Rate = flatDTO.Rate
+            };
+            _db.Flats.Update(model);
+            _db.SaveChanges();
             return NoContent();
         }
 
@@ -168,14 +202,39 @@ namespace DreamFlats.Controllers
                 return BadRequest();
             }
 
-            var flat = FlatStore.flatList.FirstOrDefault(u => u.Id == id);
+            var flat = _db.Flats.FirstOrDefault(u => u.Id == id);
 
             if (flat == null)
             {
                 return BadRequest();
             }
 
-            patchDTO.ApplyTo(flat, ModelState);
+            FlatDTO flatDTO = new()
+            {
+                Id = flat.Id,
+                Name = flat.Name,
+                Details = flat.Details,
+                SquareFeet = flat.SquareFeet,
+                Amenity = flat.Amenity,
+                ImageUrl = flat.ImageUrl,
+                Occupancy = flat.Occupancy,
+                Rate = flat.Rate
+            };
+
+            Flat flatModel = new Flat()
+            {
+                Id = flatDTO.Id,
+                Name = flatDTO.Name,
+                Details = flatDTO.Details,
+                SquareFeet = flatDTO.SquareFeet,
+                Amenity = flatDTO.Amenity,
+                ImageUrl = flatDTO.ImageUrl,
+                Occupancy = flatDTO.Occupancy,
+                Rate = flatDTO.Rate
+            };
+
+            _db.Flats.Update(flatModel);
+            _db.SaveChanges();
 
             if (!ModelState.IsValid)
             {
