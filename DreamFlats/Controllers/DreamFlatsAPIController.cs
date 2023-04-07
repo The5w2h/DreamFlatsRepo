@@ -27,13 +27,13 @@ namespace DreamFlats.Controllers
 
         // For custom logging, use below
 
-        private readonly ILogging _logger;
+        //private readonly ILogging _logger;
         private readonly ApplicationDbContext _db;
 
-        public DreamFlatsAPIController(ILogging logger)
-        {
-            _logger = logger;
-        }
+        //public DreamFlatsAPIController(ILogging logger)
+        //{
+        //    _logger = logger;
+        //}
 
         public DreamFlatsAPIController(ApplicationDbContext db)
         {
@@ -49,7 +49,7 @@ namespace DreamFlats.Controllers
         {
             try
             {
-                _logger.Log("Getting all flats", "success");
+                //_logger.Log("Getting all flats", "success");
                 return Ok(_db.Flats.ToList());
             }
             catch (Exception ex)
@@ -75,7 +75,7 @@ namespace DreamFlats.Controllers
             {
                 if (id == 0)
                 {
-                    _logger.Log("Get Villa Error with ID" + id, "error");
+                   // _logger.Log("Get Villa Error with ID" + id, "error");
                     return BadRequest();
                 }
 
